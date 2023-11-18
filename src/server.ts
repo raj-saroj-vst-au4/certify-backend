@@ -6,6 +6,8 @@ import puppeteer from "puppeteer";
 import path from "path";
 import fs from "fs";
 
+import dbmethods from "./controllers/dbmethods";
+
 const generatepdfcert = async (
   name: string,
   certifyurl: string,
@@ -169,10 +171,23 @@ export const createServer = (): Express => {
     .use(json())
     .use(cors())
     .use(express.static(path.resolve(__dirname, "..") + "/public"))
-    .get("/generatecertpdf/:certid", async (req: Request, res: Response) => {
-      // return res.json({
-      //   message: `hello ${process.env.NEXT_PUBLIC_CERTIFY_URL}`,
-      // });
+
+    .post("/generatepdf", async (req: Request, res: Response) => {
+      const { mailid, digits } = req.body;
+      dbmethods.handleGenerateCertificate(mailid, digits).then((output) => {
+        console.log(output);
+        return output;
+      });
+    })
+
+    .get("/certify/:certid", async (req: Request, res: Response) => {
+      dbmethods.handleFetchCert(parseInt(req.params.certid)).then((result) => {
+        console.log("result", result);
+        if (result) {
+          return res.send(result);
+        }
+        return res.status(404).send("Not Found");
+      });
     })
     .get("/", (_, res) => {
       return res.json({ status: { alive: true } });
