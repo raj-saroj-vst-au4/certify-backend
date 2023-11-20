@@ -14,8 +14,8 @@ model Student {
   id String @id @default(uuid())
   name String
   email String
-  phone Int
-  certGen Boolean
+  phone String
+  certGen Boolean @default(false)
   certificate Certificate?
 }
 

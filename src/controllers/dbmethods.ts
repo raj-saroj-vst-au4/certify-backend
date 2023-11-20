@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import handleGeneratePdf from "../utils/pdfgen";
 
 const handleFetchCert = async (certificateid: number) => {
   const prisma = new PrismaClient();
@@ -15,7 +16,7 @@ const handleFetchCert = async (certificateid: number) => {
 
 const handleGenerateCertificate = async (
   studentEmail: string,
-  studentPhone: number
+  studentPhone: string
 ) => {
   const prisma = new PrismaClient();
   await prisma.student
@@ -24,9 +25,9 @@ const handleGenerateCertificate = async (
         email: studentEmail,
       },
     })
-    .then((result) => {
-      if (result?.certGen) {
-        if (result.phone % 10000 === studentPhone) {
+    .then(async (result) => {
+      if (result && parseInt(result.phone) % 10000 === parseInt(studentPhone)) {
+        if (result?.certGen) {
           prisma.certificate
             .findFirst({
               where: {
@@ -37,13 +38,43 @@ const handleGenerateCertificate = async (
               return certout?.certId;
             });
         } else {
-          return null;
+          let certExists = true;
+          while (certExists) {
+            let rancertid = Math.floor(100000 + Math.random() * 900000);
+            let foundstat = await handleFetchCert(rancertid);
+            if (!foundstat) {
+              certExists = false;
+              handleGeneratePdf(
+                result.name,
+                process.env.CERTIFY_DOMAIN,
+                rancertid,
+                result.id
+              );
+            }
+          }
         }
       } else {
+        return null;
       }
     });
 };
 
-const dbmethods = { handleFetchCert, handleGenerateCertificate };
+const handleAddStudent = async (name: string, phone: string, email: string) => {
+  const prisma = new PrismaClient();
+  const student = await prisma.student.create({
+    data: {
+      name,
+      phone,
+      email,
+    },
+  });
+  return student;
+};
+
+const dbmethods = {
+  handleFetchCert,
+  handleGenerateCertificate,
+  handleAddStudent,
+};
 
 export default dbmethods;
