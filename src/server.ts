@@ -19,27 +19,33 @@ export const createServer = (): Express => {
 
     .post("/generatepdf", async (req: Request, res: Response) => {
       const { mailid, digits } = req.body;
-      dbmethods.handleGenerateCertificate(mailid, digits).then((output) => {
-        console.log(output);
-        return output;
-      });
+      const gencertid = await dbmethods.handleGenerateCertificate(
+        mailid,
+        digits
+      );
+      if (gencertid) {
+        return res.status(200).json({ certid: gencertid });
+      } else {
+        return res.status(404).json("Invalid / Not found");
+      }
     })
 
-    .post("/addstudent", async (req: Request, res: Response) => {
-      const { name, phone, email } = req.body;
-      dbmethods.handleAddStudent(name, phone, email).then((output) => {
-        return res.json(output);
-      });
-    })
+    // .post("/addstudent", async (req: Request, res: Response) => {
+    //   const { name, phone, email } = req.body;
+    //   dbmethods.handleAddStudent(name, phone, email).then((output) => {
+    //     return res.json(output);
+    //   });
+    // })
 
     .get("/certify/:certid", async (req: Request, res: Response) => {
-      dbmethods.handleFetchCert(parseInt(req.params.certid)).then((result) => {
-        console.log("result", result);
-        if (result) {
-          return res.send(result);
-        }
-        return res.status(404).send("Not Found");
-      });
+      const resultcert = await dbmethods.handleFetchCertUrl(
+        parseInt(req.params.certid)
+      );
+
+      if (resultcert) {
+        return res.status(200).json({ certurl: resultcert });
+      }
+      return res.status(404).json({ certurl: "not found" });
     })
     .get("/", (_, res) => {
       return res.json({ status: { alive: true } });

@@ -1,15 +1,15 @@
 import puppeteer from "puppeteer";
 import path from "path";
 import fs from "fs";
+import handleUploadPdf from "./pdfupload";
 
 const handleGeneratePdf = async (
   name: string,
   certifyurl: string,
-  certid: number,
-  studentid: string
+  certid: number
 ) => {
   const certbinchunks = fs
-    .readFileSync(`${path.resolve(__dirname, "../public/printtempbg.png")}`)
+    .readFileSync(`${path.resolve(__dirname, "../../public/printtempbg.png")}`)
     .toString("base64");
   // const name = "Raj Saroj";
   // const certifyurl = "verify.100xdevs.com";
@@ -70,7 +70,7 @@ const handleGeneratePdf = async (
             .name {
               position: absolute;
               top: 110mm;
-              right: 55mm;
+              right: 50mm;
               font-size: 25mm;
               font-weight: 800;
               font-style: italic;
@@ -142,17 +142,25 @@ const handleGeneratePdf = async (
       waitUntil: "networkidle0",
     });
 
-    const pdf = await page.pdf({
+    await page.pdf({
       format: "A4",
       printBackground: true,
       preferCSSPageSize: true,
       landscape: true,
-      path: `${path.resolve(__dirname, "../outputpdf")}/${studentid}.pdf`,
+      path: `${path.resolve(__dirname, "../../outputpdf")}/${certid}.pdf`,
     });
+
+    const gendata = {
+      certid,
+      path: `${path.resolve(__dirname, "../../outputpdf")}/${certid}.pdf`,
+    };
     await browser.close();
     // console.log("closed browser");
+    const uploaded_url = await handleUploadPdf(gendata);
+    return uploaded_url;
   } catch (e) {
     console.log(e);
+    return null;
   }
 };
 

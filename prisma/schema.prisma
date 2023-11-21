@@ -22,6 +22,7 @@ model Student {
 model Certificate {
   id String @id @default(uuid())
   certId Int @unique
+  certUrl String @default("Err")
   genAt DateTime @default(now())
   student Student @relation(fields: [studentid], references: [id])
   studentid String @unique

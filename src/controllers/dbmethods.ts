@@ -1,66 +1,86 @@
 import { PrismaClient } from "@prisma/client";
 import handleGeneratePdf from "../utils/pdfgen";
 
-const handleFetchCert = async (certificateid: number) => {
-  const prisma = new PrismaClient();
+const prisma = new PrismaClient();
+
+const handleFetchCertUrl = async (
+  certificateid: number
+): Promise<string | null> => {
   const certficate = await prisma.certificate.findUnique({
     where: {
       certId: certificateid,
     },
   });
   if (certficate) {
-    return certficate;
+    return certficate.certUrl;
   }
-  return null;
+  return null; // Return null if not found
 };
 
 const handleGenerateCertificate = async (
-  studentEmail: string,
-  studentPhone: string
+  sMail: string,
+  sPhoneDigits: string
 ) => {
-  const prisma = new PrismaClient();
-  await prisma.student
-    .findFirst({
+  try {
+    const result = await prisma.student.findFirst({
       where: {
-        email: studentEmail,
+        email: sMail,
       },
-    })
-    .then(async (result) => {
-      if (result && parseInt(result.phone) % 10000 === parseInt(studentPhone)) {
-        if (result?.certGen) {
-          prisma.certificate
-            .findFirst({
-              where: {
-                studentid: result.id,
+    });
+
+    if (result && parseInt(result.phone) % 10000 === parseInt(sPhoneDigits)) {
+      if (result.certGen) {
+        const certout = await prisma.certificate.findFirst({
+          where: {
+            studentid: result.id,
+          },
+        });
+        return certout?.certId ?? "Not Found";
+      } else {
+        let certExists = true;
+        while (certExists) {
+          const rancertid = Math.floor(100000 + Math.random() * 900000);
+          const foundStat = await handleFetchCertUrl(rancertid);
+          if (!foundStat) {
+            certExists = false;
+            const genpdf_url = await handleGeneratePdf(
+              result.name,
+              process.env.CERTIFY_DOMAIN ?? "localhost:5001",
+              rancertid
+            );
+
+            const createdCert = await prisma.certificate.create({
+              data: {
+                certId: rancertid,
+                certUrl: genpdf_url ?? "err",
+                student: { connect: { id: result.id } },
               },
-            })
-            .then((certout) => {
-              return certout?.certId;
             });
-        } else {
-          let certExists = true;
-          while (certExists) {
-            let rancertid = Math.floor(100000 + Math.random() * 900000);
-            let foundstat = await handleFetchCert(rancertid);
-            if (!foundstat) {
-              certExists = false;
-              handleGeneratePdf(
-                result.name,
-                process.env.CERTIFY_DOMAIN,
-                rancertid,
-                result.id
-              );
-            }
+
+            await prisma.student.update({
+              where: { id: result.id },
+              data: {
+                certGen: true,
+                certificate: {
+                  connect: {
+                    id: createdCert.id,
+                  },
+                },
+              },
+            });
+            return createdCert.certId;
           }
         }
-      } else {
-        return null;
       }
-    });
+    } else {
+      throw new Error("Invalid digits");
+    }
+  } catch (err) {
+    return null;
+  }
 };
 
 const handleAddStudent = async (name: string, phone: string, email: string) => {
-  const prisma = new PrismaClient();
   const student = await prisma.student.create({
     data: {
       name,
@@ -72,7 +92,7 @@ const handleAddStudent = async (name: string, phone: string, email: string) => {
 };
 
 const dbmethods = {
-  handleFetchCert,
+  handleFetchCertUrl,
   handleGenerateCertificate,
   handleAddStudent,
 };
