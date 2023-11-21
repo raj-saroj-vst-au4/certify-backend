@@ -11,9 +11,7 @@ const handleGeneratePdf = async (
   const certbinchunks = fs
     .readFileSync(`${path.resolve(__dirname, "../../public/printtempbg.png")}`)
     .toString("base64");
-  // const name = "Raj Saroj";
-  // const certifyurl = "verify.100xdevs.com";
-  // const certid = 432121;
+
   try {
     const browser = await puppeteer.launch({
       headless: "new",
