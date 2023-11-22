@@ -44,10 +44,18 @@ const createServer = () => {
         //     return res.json(output);
         //   });
         // })
-        .get("/certify/:certid", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        .post("/fetchcertdata", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        const { certid } = req.body;
+        const certifydata = yield dbmethods_1.default.handleFetchCertData(certid);
+        if (certifydata) {
+            return res.status(200).json(certifydata);
+        }
+        return res.status(404).json({ data: "Certid not found" });
+    }))
+        .get("/certifydown/:certid", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const resultcert = yield dbmethods_1.default.handleFetchCertUrl(parseInt(req.params.certid));
         if (resultcert) {
-            return res.status(200).json({ certurl: resultcert });
+            return res.redirect(resultcert);
         }
         return res.status(404).json({ certurl: "not found" });
     }))

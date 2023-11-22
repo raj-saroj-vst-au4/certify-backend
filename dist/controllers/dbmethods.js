@@ -92,9 +92,31 @@ const handleAddStudent = (name, phone, email) => __awaiter(void 0, void 0, void 
     });
     return student;
 });
+const handleFetchCertData = (uinputcertid) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const data = yield prisma.certificate.findUnique({
+            where: {
+                certId: uinputcertid,
+            },
+            include: {
+                student: true,
+            },
+        });
+        if (data) {
+            return data;
+        }
+        else {
+            return null;
+        }
+    }
+    catch (e) {
+        console.log(e);
+    }
+});
 const dbmethods = {
     handleFetchCertUrl,
     handleGenerateCertificate,
     handleAddStudent,
+    handleFetchCertData,
 };
 exports.default = dbmethods;

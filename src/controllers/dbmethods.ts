@@ -91,10 +91,31 @@ const handleAddStudent = async (name: string, phone: string, email: string) => {
   return student;
 };
 
+const handleFetchCertData = async (uinputcertid: number) => {
+  try {
+    const data = await prisma.certificate.findUnique({
+      where: {
+        certId: uinputcertid,
+      },
+      include: {
+        student: true,
+      },
+    });
+    if (data) {
+      return data;
+    } else {
+      return null;
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 const dbmethods = {
   handleFetchCertUrl,
   handleGenerateCertificate,
   handleAddStudent,
+  handleFetchCertData,
 };
 
 export default dbmethods;

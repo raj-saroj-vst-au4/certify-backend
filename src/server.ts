@@ -37,13 +37,22 @@ export const createServer = (): Express => {
     //   });
     // })
 
-    .get("/certify/:certid", async (req: Request, res: Response) => {
+    .post("/fetchcertdata", async (req: Request, res: Response) => {
+      const { certid } = req.body;
+      const certifydata = await dbmethods.handleFetchCertData(certid);
+      if (certifydata) {
+        return res.status(200).json(certifydata);
+      }
+      return res.status(404).json({ data: "Certid not found" });
+    })
+
+    .get("/certifydown/:certid", async (req: Request, res: Response) => {
       const resultcert = await dbmethods.handleFetchCertUrl(
         parseInt(req.params.certid)
       );
 
       if (resultcert) {
-        return res.status(200).json({ certurl: resultcert });
+        return res.redirect(resultcert);
       }
       return res.status(404).json({ certurl: "not found" });
     })
