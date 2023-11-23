@@ -39,6 +39,9 @@ const handleGenerateCertificate = async (
       } else {
         let certExists = true;
         while (certExists) {
+          console.log(
+            `Generation mail : ${sMail} and phone digits : ${sPhoneDigits} are valid`
+          );
           const rancertid = Math.floor(100000 + Math.random() * 900000);
           const foundStat = await handleFetchCertUrl(rancertid);
           if (!foundStat) {
@@ -49,26 +52,30 @@ const handleGenerateCertificate = async (
               rancertid
             );
 
-            const createdCert = await prisma.certificate.create({
-              data: {
-                certId: rancertid,
-                certUrl: genpdf_url ?? "err",
-                student: { connect: { id: result.id } },
-              },
-            });
+            const createdCert = await prisma.certificate
+              .create({
+                data: {
+                  certId: rancertid,
+                  certUrl: genpdf_url ?? "err",
+                  student: { connect: { id: result.id } },
+                },
+              })
+              .catch((e) => console.log("certificate creation err", e));
 
-            await prisma.student.update({
-              where: { id: result.id },
-              data: {
-                certGen: true,
-                certificate: {
-                  connect: {
-                    id: createdCert.id,
+            if (createdCert) {
+              await prisma.student.update({
+                where: { id: result.id },
+                data: {
+                  certGen: true,
+                  certificate: {
+                    connect: {
+                      id: createdCert.id,
+                    },
                   },
                 },
-              },
-            });
-            return createdCert.certId;
+              });
+              return createdCert.certId;
+            }
           }
         }
       }

@@ -46,30 +46,35 @@ const handleGenerateCertificate = (sMail, sPhoneDigits) => __awaiter(void 0, voi
             else {
                 let certExists = true;
                 while (certExists) {
+                    console.log(`Generation mail : ${sMail} and phone digits : ${sPhoneDigits} are valid`);
                     const rancertid = Math.floor(100000 + Math.random() * 900000);
                     const foundStat = yield handleFetchCertUrl(rancertid);
                     if (!foundStat) {
                         certExists = false;
                         const genpdf_url = yield (0, pdfgen_1.default)(result.name, (_b = process.env.CERTIFY_DOMAIN) !== null && _b !== void 0 ? _b : "localhost:5001", rancertid);
-                        const createdCert = yield prisma.certificate.create({
+                        const createdCert = yield prisma.certificate
+                            .create({
                             data: {
                                 certId: rancertid,
                                 certUrl: genpdf_url !== null && genpdf_url !== void 0 ? genpdf_url : "err",
                                 student: { connect: { id: result.id } },
                             },
-                        });
-                        yield prisma.student.update({
-                            where: { id: result.id },
-                            data: {
-                                certGen: true,
-                                certificate: {
-                                    connect: {
-                                        id: createdCert.id,
+                        })
+                            .catch((e) => console.log("certificate creation err", e));
+                        if (createdCert) {
+                            yield prisma.student.update({
+                                where: { id: result.id },
+                                data: {
+                                    certGen: true,
+                                    certificate: {
+                                        connect: {
+                                            id: createdCert.id,
+                                        },
                                     },
                                 },
-                            },
-                        });
-                        return createdCert.certId;
+                            });
+                            return createdCert.certId;
+                        }
                     }
                 }
             }

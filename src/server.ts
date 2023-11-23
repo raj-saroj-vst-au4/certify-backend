@@ -11,7 +11,6 @@ export const createServer = (): Express => {
 
   app
     .disable("x-powered-by")
-    .use(morgan("dev"))
     .use(urlencoded({ extended: true }))
     .use(json())
     .use(cors())
