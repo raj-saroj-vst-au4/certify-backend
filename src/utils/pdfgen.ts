@@ -148,6 +148,7 @@ const handleGeneratePdf = async (
       path: `${certid}.pdf`,
     });
 
+    console.log("trying to create a file in ", __dirname);
     const gendata = {
       certid,
       path: `${certid}.pdf`,
