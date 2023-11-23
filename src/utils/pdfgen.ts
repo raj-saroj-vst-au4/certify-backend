@@ -145,12 +145,12 @@ const handleGeneratePdf = async (
       printBackground: true,
       preferCSSPageSize: true,
       landscape: true,
-      path: `${path.resolve(__dirname, "./../../outputpdf")}/${certid}.pdf`,
+      path: `${certid}.pdf`,
     });
 
     const gendata = {
       certid,
-      path: `${path.resolve(__dirname, "./../../outputpdf")}/${certid}.pdf`,
+      path: `${certid}.pdf`,
     };
     await browser.close();
     // console.log("closed browser");

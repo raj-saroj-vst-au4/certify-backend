@@ -4,11 +4,10 @@ import fs from "fs";
 cloudinary.config({ secure: true });
 
 interface UploaderProps {
-  certid: number;
   path: string;
 }
 
-const handleUploadPdf = async ({ certid, path }: UploaderProps) => {
+const handleUploadPdf = async ({ path }: UploaderProps) => {
   const options = {
     use_filename: true,
     unique_filename: true,
