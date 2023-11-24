@@ -13,7 +13,6 @@ const handleGeneratePdf = async (
     .toString("base64");
 
   try {
-    console.log("trying to create a file in ", __dirname);
     const browser = await puppeteer.launch({
       headless: "new",
     });

@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const cloudinary_1 = require("cloudinary");
 const fs_1 = __importDefault(require("fs"));
 cloudinary_1.v2.config({ secure: true });
-const handleUploadPdf = ({ certid, path }) => __awaiter(void 0, void 0, void 0, function* () {
+const handleUploadPdf = ({ path }) => __awaiter(void 0, void 0, void 0, function* () {
     const options = {
         use_filename: true,
         unique_filename: true,
@@ -25,6 +25,7 @@ const handleUploadPdf = ({ certid, path }) => __awaiter(void 0, void 0, void 0, 
         const uploadresult = yield cloudinary_1.v2.uploader
             .upload(path, options)
             .then((upldata) => {
+            console.log("Deleting ", path);
             fs_1.default.unlink(path, (err) => {
                 if (err) {
                     console.log("Deletion err", err);
