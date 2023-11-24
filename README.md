@@ -1,6 +1,6 @@
 # Certify Backend
 
-Certify Backend is the server-side component of the Certify platform [https://github.com/raj-saroj-vst-au4/certify]('https://github.com/raj-saroj-vst-au4/certify') , handling certificate generation, validation, and database operations.
+Certify Backend is the server-side component of the Certify platform [https://github.com/raj-saroj-vst-au4/certify](https://github.com/raj-saroj-vst-au4/certify) , handling certificate generation, validation, and database operations.
 
 ## Features
 
