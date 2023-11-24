@@ -25,7 +25,6 @@ const handleUploadPdf = ({ path }) => __awaiter(void 0, void 0, void 0, function
         const uploadresult = yield cloudinary_1.v2.uploader
             .upload(path, options)
             .then((upldata) => {
-            console.log("Deleting ", path);
             fs_1.default.unlink(path, (err) => {
                 if (err) {
                     console.log("Deletion err", err);

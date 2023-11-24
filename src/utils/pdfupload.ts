@@ -17,7 +17,6 @@ const handleUploadPdf = async ({ path }: UploaderProps) => {
     const uploadresult = await cloudinary.uploader
       .upload(path, options)
       .then((upldata) => {
-        console.log("Deleting ", path);
         fs.unlink(path, (err) => {
           if (err) {
             console.log("Deletion err", err);

@@ -46,7 +46,6 @@ const handleGenerateCertificate = (sMail, sPhoneDigits) => __awaiter(void 0, voi
             else {
                 let certExists = true;
                 while (certExists) {
-                    console.log(`Generation mail : ${sMail} and phone digits : ${sPhoneDigits} are valid`);
                     const rancertid = Math.floor(100000 + Math.random() * 900000);
                     const foundStat = yield handleFetchCertUrl(rancertid);
                     if (!foundStat) {

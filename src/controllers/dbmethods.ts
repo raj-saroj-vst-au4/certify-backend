@@ -39,9 +39,6 @@ const handleGenerateCertificate = async (
       } else {
         let certExists = true;
         while (certExists) {
-          console.log(
-            `Generation mail : ${sMail} and phone digits : ${sPhoneDigits} are valid`
-          );
           const rancertid = Math.floor(100000 + Math.random() * 900000);
           const foundStat = await handleFetchCertUrl(rancertid);
           if (!foundStat) {
